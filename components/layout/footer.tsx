@@ -1,0 +1,5 @@
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { getDictionary, localePath } from "@/content/site";
+export function Footer(){const pathname=usePathname();const locale=pathname.startsWith("/ar")?"ar":"en";const d=getDictionary(locale);const href=(path:string)=>localePath(locale,path);return <footer className="footer"><div className="container"><div className="footer-top"><div><div className="wordmark">SONBOL LABS</div><p>{d.footer.descriptor}<br/>{d.footer.market}</p></div><nav className="footer-nav" aria-label="Footer navigation"><Link href={href("/#services")}>{d.nav.services}</Link><Link href={href("/work/dr-choice")}>{d.nav.work}</Link><Link href={href("/#about")}>{d.nav.about}</Link><Link href={href("/contact")}>{d.nav.contact}</Link><Link href={href("/privacy")}>{d.nav.privacy}</Link></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Sonbol Labs</span><span>{d.footer.framework}</span></div></div></footer>}

@@ -1,0 +1,9 @@
+import type { Metadata } from "next";
+import "./globals.css";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { GTM } from "@/components/analytics/analytics";
+import { company } from "@/content/company";
+import { headers } from "next/headers";
+export const metadata: Metadata = { metadataBase:new URL(company.siteUrl), title:{default:"Sonbol Labs | AI-Native Digital Product & Commerce Studio",template:"%s | Sonbol Labs"}, description:"Sonbol Labs builds digital products, commerce systems and AI automation for ambitious businesses across Europe and the GCC.", alternates:{canonical:"/",languages:{en:"/",ar:"/ar"}}, openGraph:{type:"website",siteName:"Sonbol Labs",title:"Sonbol Labs | AI-Native Digital Product & Commerce Studio",description:"Digital products, commerce systems and AI automation for ambitious businesses across Europe and the GCC."}, twitter:{card:"summary_large_image"} };
+export default async function RootLayout({children}:{children:React.ReactNode}){const locale=(await headers()).get("x-sonbol-locale") === "ar" ? "ar" : "en";const jsonLd={"@context":"https://schema.org","@graph":[{"@type":"Organization",name:company.name,url:company.siteUrl},{"@type":"ProfessionalService",name:company.name,description:company.descriptor,areaServed:["Europe","GCC"]},{"@type":"WebSite",name:company.name,url:company.siteUrl}]};return <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><body><GTM/><a href="#main" style={{position:"absolute",insetInlineStart:"-999px"}}>Skip to content</a><Header/><main id="main">{children}</main><Footer/><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd)}}/></body></html>}

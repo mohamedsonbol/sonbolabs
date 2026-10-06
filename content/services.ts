@@ -1,0 +1,5 @@
+export const services = [
+  { number:"01", title:"Digital Products", heading:"Build it properly from the beginning.", capabilities:["Websites & Web Apps","Next.js & Modern Web Development","WordPress & CMS Platforms","Headless Architecture","API & System Integrations","Analytics & Conversion Tracking"], cta:"Build your digital product" },
+  { number:"02", title:"Commerce Systems", heading:"Turn your website into a working business.", capabilities:["E-commerce Development","WooCommerce & Custom Commerce","Product & Catalog Architecture","Checkout & Payment Integrations","Order & Customer Workflows","Arabic / English Experiences","Analytics & Conversion Measurement"], cta:"Build your commerce system" },
+  { number:"03", title:"AI & Automation", heading:"Make your business work smarter.", capabilities:["AI Agents & Assistants","Customer Support Automation","Lead Qualification","Internal Knowledge Systems","Content & Operational Workflows","API & Business Automation","AI Integration Into Existing Products"], cta:"Find an automation opportunity" },
+];
