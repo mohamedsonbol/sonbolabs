@@ -5,5 +5,8 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   { key: "X-Frame-Options", value: "DENY" },
 ];
-const nextConfig: NextConfig = { async headers() { return [{ source: "/(.*)", headers: securityHeaders }]; } };
+const nextConfig: NextConfig = {
+  experimental: { useTypeScriptCli: false },
+  async headers() { return [{ source: "/(.*)", headers: securityHeaders }]; },
+};
 export default nextConfig;

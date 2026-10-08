@@ -1,6 +1,20 @@
-import { NextResponse } from "next/server";
-import { sendLeadEmail, type Lead } from "@/lib/email/mailer";
-export const runtime="nodejs";
-const required=["name","email","company","projectType","budget","timeline","message"] as const;
-const clean=(value:unknown,max:number)=>typeof value === "string" ? value.trim().replace(/[\r\n]+/g," ").slice(0,max) : "";
-export async function POST(request:Request){try{const raw=await request.json() as Record<string,unknown>;if(clean(raw.companyWebsite,100)) return NextResponse.json({ok:true}); const lead:Lead={name:clean(raw.name,100),email:clean(raw.email,254),company:clean(raw.company,150),website:clean(raw.website,2048),projectType:clean(raw.projectType,100),budget:clean(raw.budget,100),timeline:clean(raw.timeline,100),message:typeof raw.message === "string" ? raw.message.trim().slice(0,5000) : "",locale:raw.locale === "ar" ? "ar" : "en"};if(required.some(key=>!lead[key])||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email))return NextResponse.json({error:"Invalid form submission."},{status:400});if(lead.website){try{const url=new URL(lead.website);if(!["http:","https:"].includes(url.protocol))throw new Error();}catch{return NextResponse.json({error:"Invalid form submission."},{status:400})}}await sendLeadEmail(lead);return NextResponse.json({ok:true});}catch(error){console.error("Contact form delivery failed",error instanceof Error ? error.message : "unknown error");return NextResponse.json({error:"Unable to send message."},{status:500})}}
+import { processContactSubmission } from "@/lib/contact/handler";
+import { sendLeadEmail } from "@/lib/email/mailer";
+
+export const runtime = "nodejs";
+
+export async function POST(request: Request) {
+  let raw: unknown;
+  try {
+    raw = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid form submission." }, { status: 400 });
+  }
+
+  try {
+    return await processContactSubmission(raw, sendLeadEmail);
+  } catch (error) {
+    console.error("Contact form delivery failed", error instanceof Error ? error.message : "unknown error");
+    return Response.json({ error: "Unable to send message." }, { status: 500 });
+  }
+}
