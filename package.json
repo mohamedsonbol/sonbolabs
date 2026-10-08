@@ -2,7 +2,7 @@
   "name": "sonbol-labs",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "dev": "next dev", "build": "next build", "start": "next start", "lint": "eslint .", "typecheck": "tsc --noEmit" },
+  "scripts": { "dev": "next dev", "build": "next build --webpack", "start": "next start", "lint": "eslint .", "typecheck": "tsc --noEmit" },
   "dependencies": { "@next/third-parties": "latest", "next": "latest", "nodemailer": "^10.0.14", "react": "latest", "react-dom": "latest", "zod": "^4.3.6" },
   "devDependencies": { "@tailwindcss/postcss": "latest", "@types/node": "latest", "@types/nodemailer": "^8.0.2", "@types/react": "latest", "@types/react-dom": "latest", "eslint": "latest", "eslint-config-next": "latest", "tailwindcss": "latest", "typescript": "latest" }
 }
