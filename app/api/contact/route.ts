@@ -1,9 +1,15 @@
 import { processContactSubmission } from "@/lib/contact/handler";
-import { sendLeadEmail } from "@/lib/email/mailer";
+import { isAllowedContactOrigin } from "@/lib/contact/origin";
+import { ContactMailConfigurationError, sendLeadEmail, smtpErrorDiagnostic } from "@/lib/email/mailer";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  if (!isAllowedContactOrigin(request.headers.get("origin"))) {
+    console.warn("contact.request_rejected", { stage: "origin" });
+    return Response.json({ error: "Invalid form submission." }, { status: 400 });
+  }
+
   let raw: unknown;
   try {
     raw = await request.json();
@@ -14,7 +20,7 @@ export async function POST(request: Request) {
   try {
     return await processContactSubmission(raw, sendLeadEmail);
   } catch (error) {
-    console.error("Contact form delivery failed", error instanceof Error ? error.message : "unknown error");
-    return Response.json({ error: "Unable to send message." }, { status: 500 });
+    console.error("contact.smtp_failed", smtpErrorDiagnostic(error));
+    return Response.json({ error: "Unable to send message." }, { status: error instanceof ContactMailConfigurationError ? 503 : 500 });
   }
 }

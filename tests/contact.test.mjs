@@ -4,6 +4,7 @@ import { createJiti } from "jiti";
 
 const jiti = createJiti(import.meta.url, { interopDefault: true });
 const { processContactSubmission } = await jiti.import("../lib/contact/handler.ts");
+const { isAllowedContactOrigin } = await jiti.import("../lib/contact/origin.ts");
 
 async function submit(body) {
   const leads = [];
@@ -13,7 +14,14 @@ async function submit(body) {
   return { response, leads };
 }
 
-test("accepts a valid English submission with empty website and honeypot", async () => {
+test("only permits the exact production origin in production", () => {
+  assert.equal(isAllowedContactOrigin("https://sonbolabs.exceptionalgrp.com", "production"), true);
+  assert.equal(isAllowedContactOrigin("https://www.sonbolabs.exceptionalgrp.com", "production"), false);
+  assert.equal(isAllowedContactOrigin("https://sonbolabs.exceptionalgrp.com.evil.example", "production"), false);
+  assert.equal(isAllowedContactOrigin(null, "production"), false);
+});
+
+test("accepts a valid English submission with an empty website and honeypot", async () => {
   const { response, leads } = await submit({
     name: "Ada Lovelace",
     email: "ada@example.com",
@@ -54,8 +62,28 @@ test("accepts a valid Arabic submission with an optional HTTPS website", async (
   assert.equal(leads[0].locale, "ar");
 });
 
-test("returns field-specific errors for an invalid legitimate submission", async () => {
-  const { response, leads } = await submit({
+test("normalizes bare domains and preserves HTTP/HTTPS across both locales", async () => {
+  for (const [locale, website, expected] of [["en", " example.com ", "https://example.com/"], ["ar", "www.example.com", "https://www.example.com/"], ["en", "http://example.com", "http://example.com/"], ["ar", "https://example.com", "https://example.com/"]]) {
+    const { response, leads } = await submit({
+      name: "Test Person",
+      email: "test@example.com",
+      company: "Example Company",
+      website,
+      projectType: "digital_product",
+      budget: "2500_5000",
+      timeline: "one_to_two_months",
+      message: "A valid request.",
+      locale,
+      companyWebsite: "",
+    });
+    assert.equal(response.status, 200);
+    assert.equal(leads[0].website, expected);
+  }
+});
+
+test("returns localized-client-compatible field codes for invalid submissions in both locales", async () => {
+  for (const locale of ["en", "ar"]) {
+    const { response, leads } = await submit({
     name: "Ada",
     email: "not-an-email",
     company: "Analytical Engines",
@@ -64,20 +92,21 @@ test("returns field-specific errors for an invalid legitimate submission", async
     budget: "2500_5000",
     timeline: "one_to_two_months",
     message: "Help.",
-    locale: "en",
+    locale,
     companyWebsite: "",
-  });
+    });
 
-  assert.equal(response.status, 400);
-  assert.deepEqual(await response.json(), {
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), {
     error: "Validation failed.",
     fields: {
-      email: ["Enter a valid email address."],
-      website: ["Enter a valid website URL."],
-      projectType: ["Choose a valid option."],
+      email: ["invalid_email"],
+      website: ["invalid_website"],
+      projectType: ["invalid_option"],
     },
-  });
-  assert.equal(leads.length, 0);
+    });
+    assert.equal(leads.length, 0);
+  }
 });
 
 test("acknowledges a filled honeypot without exposing spam controls", async () => {

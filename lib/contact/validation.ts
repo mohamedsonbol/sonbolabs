@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeWebsite } from "./website";
 
 export const projectTypeValues = ["digital_product", "ecommerce", "ai_automation", "integrations", "analytics_tracking", "other"] as const;
 export const budgetValues = ["under_2500", "2500_5000", "5000_10000", "10000_25000", "25000_plus", "not_sure"] as const;
@@ -6,7 +7,10 @@ export const timelineValues = ["asap", "one_to_two_months", "three_to_six_months
 export const localeValues = ["en", "ar"] as const;
 
 const optionalWebsite = z.preprocess(
-  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  (value) => {
+    if (typeof value !== "string") return value;
+    return normalizeWebsite(value) ?? (value.trim() === "" ? undefined : value.trim());
+  },
   z
     .string()
     .trim()
