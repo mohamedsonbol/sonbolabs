@@ -9,6 +9,10 @@ import { normalizeWebsite } from "@/lib/contact/website";
 type FieldErrors = Partial<Record<string, ContactFieldErrorCode[]>>;
 type ContactErrorResponse = { fields?: FieldErrors };
 
+function SuccessIcon() {
+  return <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="size-5"><circle cx="12" cy="12" r="9" /><path d="m8 12 2.5 2.5L16 9" /></svg></span>;
+}
+
 export function ContactForm({ locale = "en" }: { locale?: Locale }) {
   const d = getDictionary(locale).contact;
   const options = contactOptions[locale];
@@ -58,7 +62,7 @@ export function ContactForm({ locale = "en" }: { locale?: Locale }) {
     }
   }
 
-  if (status === "success") return <div className="form-message" role="status">{d.success}</div>;
+  if (status === "success") return <div className="flex gap-3 rounded-[10px] border border-[#22C55E] bg-[#F0FDF4] p-5 text-start sm:gap-4 sm:p-6" role="status" aria-live="polite"><SuccessIcon /><div className="min-w-0"><p className="m-0 text-base font-bold leading-6 text-[#166534]">{d.success.heading}</p><p className="m-0 mt-1 text-sm leading-6 text-green-800">{d.success.description}</p></div></div>;
   const field = d.fields;
   const inputError = (name: string) => errorFor(name) && <p className="error" role="alert">{errorFor(name)}</p>;
 
