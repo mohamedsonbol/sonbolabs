@@ -5,6 +5,7 @@ import { createJiti } from "jiti";
 const jiti = createJiti(import.meta.url, { interopDefault: true });
 const { processContactSubmission } = await jiti.import("../lib/contact/handler.ts");
 const { isAllowedContactOrigin } = await jiti.import("../lib/contact/origin.ts");
+const { handleContactPost } = await jiti.import("../lib/contact/request.ts");
 
 async function submit(body) {
   const leads = [];
@@ -115,4 +116,32 @@ test("acknowledges a filled honeypot without exposing spam controls", async () =
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { ok: true });
   assert.equal(leads.length, 0);
+});
+
+test("allows contact requests when the shared rate limiter allows them", async () => {
+  const response = await handleContactPost(
+    new Request("https://sonbolabs.exceptionalgrp.com/api/contact", {
+      method: "POST",
+      headers: { origin: "https://sonbolabs.exceptionalgrp.com", "content-type": "application/json" },
+      body: JSON.stringify({ companyWebsite: "spam" }),
+    }),
+    { checkRateLimit: async () => ({ allowed: true }), deliver: async () => {} },
+  );
+
+  assert.equal(response.status, 200);
+});
+
+test("blocks contact requests when the shared rate limiter rejects them", async () => {
+  const response = await handleContactPost(
+    new Request("https://sonbolabs.exceptionalgrp.com/api/contact", {
+      method: "POST",
+      headers: { origin: "https://sonbolabs.exceptionalgrp.com", "content-type": "application/json" },
+      body: "{}",
+    }),
+    { checkRateLimit: async () => ({ allowed: false, retryAfter: 120 }), deliver: async () => {} },
+  );
+
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get("retry-after"), "120");
+  assert.deepEqual(await response.json(), { error: "Too many requests. Please try again later." });
 });
