@@ -7,6 +7,8 @@ const { processContactSubmission } = await jiti.import("../lib/contact/handler.t
 const { isAllowedContactOrigin } = await jiti.import("../lib/contact/origin.ts");
 const { handleContactPost } = await jiti.import("../lib/contact/request.ts");
 
+const trustedAuth = async () => ({ clientIp: "198.18.0.1" });
+
 async function submit(body) {
   const leads = [];
   const response = await processContactSubmission(body, async (lead) => {
@@ -125,7 +127,7 @@ test("allows contact requests when the shared rate limiter allows them", async (
       headers: { origin: "https://sonbolabs.exceptionalgrp.com", "content-type": "application/json" },
       body: JSON.stringify({ companyWebsite: "spam" }),
     }),
-    { checkRateLimit: async () => ({ allowed: true }), deliver: async () => {} },
+    { authenticateOrigin: trustedAuth, checkRateLimit: async () => ({ allowed: true }), deliver: async () => {} },
   );
 
   assert.equal(response.status, 200);
@@ -138,7 +140,7 @@ test("blocks contact requests when the shared rate limiter rejects them", async 
       headers: { origin: "https://sonbolabs.exceptionalgrp.com", "content-type": "application/json" },
       body: "{}",
     }),
-    { checkRateLimit: async () => ({ allowed: false, retryAfter: 120 }), deliver: async () => {} },
+    { authenticateOrigin: trustedAuth, checkRateLimit: async () => ({ allowed: false, retryAfter: 120 }), deliver: async () => {} },
   );
 
   assert.equal(response.status, 429);

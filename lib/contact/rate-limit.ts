@@ -8,7 +8,7 @@ export type ContactRateLimitDecision =
   | { allowed: true }
   | { allowed: false; retryAfter: number };
 
-export type ContactRateLimitCheck = (request: Request) => Promise<ContactRateLimitDecision>;
+export type ContactRateLimitCheck = (clientIp: string) => Promise<ContactRateLimitDecision>;
 
 export class ContactRateLimitConfigurationError extends Error {
   constructor() {
@@ -34,23 +34,9 @@ function getLimiter() {
   return limiter;
 }
 
-function requestIdentity(request: Request) {
-  // This header is accepted only after the origin is locked to Cloudflare in Hostinger.
-  // Do not enable it until the accompanying deployment checklist is complete.
-  if (process.env.CONTACT_RATE_LIMIT_TRUSTED_PROXY !== "cloudflare") {
-    throw new ContactRateLimitConfigurationError();
-  }
-
-  const connectingIp = request.headers.get("cf-connecting-ip");
-  if (!connectingIp || connectingIp.includes(",")) {
-    throw new ContactRateLimitConfigurationError();
-  }
-
-  return connectingIp;
-}
-
-export const checkContactRateLimit: ContactRateLimitCheck = async (request) => {
-  const result = await getLimiter().limit(requestIdentity(request));
+/** The origin authenticator, not a forwarded HTTP header, supplies this identity. */
+export const checkContactRateLimit: ContactRateLimitCheck = async (clientIp) => {
+  const result = await getLimiter().limit(clientIp);
   if (result.success) return { allowed: true };
   return { allowed: false, retryAfter: Math.max(1, Math.ceil((result.reset - Date.now()) / 1000)) };
 };
