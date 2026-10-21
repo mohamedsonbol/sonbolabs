@@ -78,6 +78,22 @@ Set server-side values only in Hostinger's environment-variable interface. Never
 
 **Gate T current result: NO-GO.** The code no longer relies on `CF-Connecting-IP`, and no second hostname is required, but the Worker route/secrets and Hostinger staging evidence do not yet exist.
 
+### Gate S — optional isolated full-path staging
+
+The temporary Hostinger pull-request preview is useful for reviewing a build without changing production, but its temporary `hostingersite.com` hostname is not in the Cloudflare zone. It cannot exercise the same-zone Worker Route path.
+
+The minimum full-path staging topology is a separate Hostinger Node.js Web App attached to an orange-clouded `staging.sonbolabs.exceptionalgrp.com` DNS record, with its own process, deployment source, HMAC keys, and Upstash database. It must have **no SMTP credentials or production recipient**. A same-zone Worker Route for `https://staging.sonbolabs.exceptionalgrp.com/api/contact` then forwards only to that staging app's DNS-configured origin; it cannot invoke the production contact handler.
+
+`72a5da3` is not yet hostname-configurable: the Worker and origin allow-list intentionally contain the production hostname. Before a full-path staging deployment, make and test a narrowly scoped follow-up that supplies the public hostname/origin from a server-side staging configuration. Do not instead force the production `Origin` header in a staging Worker, and do not route the staging hostname to the production Hostinger app.
+
+- [ ] Confirm in Hostinger that the current plan has a spare Node.js website slot and permits assignment of the staging subdomain as a separate Web App.
+- [ ] Create the separate staging app from the release branch only after the hostname-configurability follow-up is reviewed; never connect it to `main` production deployment automation.
+- [ ] Give staging distinct HMAC current/previous pairs and a distinct Upstash database. Leave all SMTP variables and `CONTACT_TO_EMAIL`/`CONTACT_FROM_EMAIL` unset.
+- [ ] Create a separate Cloudflare Worker/version and exact staging route. Set its route fail mode to **fail closed** because it is security-critical.
+- [ ] Complete every Gate T test in staging before opening a production maintenance window.
+
+**Gate S current result: not selected.** A PR preview may validate the origin build only. It cannot validate the Worker Route path, and the release code needs the small public-host configuration follow-up before an isolated staging hostname can be used. This does not block the separately authorized Gate M maintenance-window cutover below.
+
 ### Gate P — privacy and analytics
 
 - [ ] Legal approval of controller details, including any required address/representative information.
@@ -89,7 +105,7 @@ Set server-side values only in Hostinger's environment-variable interface. Never
 
 ## 6. Production smoke-test runbook
 
-Run after a controlled deployment, from a designated test network, and record only status/header results. Do not submit a valid contact body.
+Run only after Gate S completes **or** Gate M is formally approved and the controlled deployment is authorized, from a designated test network, and record only status/header results. Do not submit a valid contact body.
 
 | Test | Expected result |
 | --- | --- |
@@ -136,12 +152,22 @@ If an authenticated-origin-control failure is discovered:
 3. Keep Cloudflare WAF protections active while correcting the Worker/origin configuration.
 4. Record the incident and do not re-enable contact delivery until Gate T is fully evidenced.
 
+## 9. Gate M — fail-closed production cutover without staging
+
+This is the selected maintenance-window path when isolated staging is intentionally skipped. It accepts a short, deliberate contact-form outage while the origin verifier is live and before the Worker Route is attached. No staging-only hostname configuration is required: `72a5da3` is explicitly restricted to the production hostname.
+
+1. Record the Hostinger deployment/build ID, Cloudflare Worker version and route state, WAF rule ID, DNS state, and health/header snapshot. Configure the production HMAC values in Hostinger and Worker secrets first; the old application ignores the new HMAC variables.
+2. Publish the reviewed origin verifier to `main` during the window and wait for Hostinger to show a successful deployment of the recorded commit. The public contact path will intentionally return 403 until the Worker Route is attached; this is the expected fail-closed interval.
+3. Attach the exact production Worker Route, with **fail-closed** route behavior. Send one invalid `{}` request: it must return 400 after Worker signing, never send email, and appear once in Worker and origin logs.
+4. Use only invalid bodies for the five/then-six limiter verification. Stop immediately on any unexpected response, missing log evidence, or delivery signal.
+5. If any check fails, remove the Worker Route and retain the origin verifier. The contact endpoint remains safely unavailable (403/503); do not restore the pre-Phase-3 trusted-proxy endpoint simply to resume contact delivery.
+
 ## Decision
 
 **Current deployment decision: NO-GO for a complete production release.**
 
 Smallest blocking set:
 
-1. Configure the exact Worker Route and matching HMAC secrets, then obtain staging evidence that signed Worker requests pass once while direct-origin requests fail before SMTP.
+1. Complete Gate S with a separate staging app and route, or complete every Gate M prerequisite and formally accept its temporary contact outage.
 2. Review/stage the intended documentation package.
 3. For privacy publication or analytics activation only: close Gate P.
