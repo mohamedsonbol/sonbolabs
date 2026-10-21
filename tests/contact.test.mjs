@@ -7,8 +7,6 @@ const { processContactSubmission } = await jiti.import("../lib/contact/handler.t
 const { isAllowedContactOrigin } = await jiti.import("../lib/contact/origin.ts");
 const { handleContactPost } = await jiti.import("../lib/contact/request.ts");
 
-const trustedAuth = async () => ({ clientIp: "198.18.0.1" });
-
 async function submit(body) {
   const leads = [];
   const response = await processContactSubmission(body, async (lead) => {
@@ -120,30 +118,52 @@ test("acknowledges a filled honeypot without exposing spam controls", async () =
   assert.equal(leads.length, 0);
 });
 
-test("allows contact requests when the shared rate limiter allows them", async () => {
+test("accepts a same-origin request without infrastructure authentication", async () => {
+  const delivered = [];
   const response = await handleContactPost(
     new Request("https://sonbolabs.exceptionalgrp.com/api/contact", {
       method: "POST",
       headers: { origin: "https://sonbolabs.exceptionalgrp.com", "content-type": "application/json" },
-      body: JSON.stringify({ companyWebsite: "spam" }),
+      body: JSON.stringify({ name: "Ada Lovelace", email: "ada@example.com", company: "Analytical Engines", website: "", projectType: "digital_product", budget: "2500_5000", timeline: "one_to_two_months", message: "We need a product website.", locale: "en", companyWebsite: "" }),
     }),
-    { authenticateOrigin: trustedAuth, checkRateLimit: async () => ({ allowed: true }), deliver: async () => {} },
+    { deliver: async (lead) => { delivered.push(lead); } },
   );
 
   assert.equal(response.status, 200);
+  assert.equal(delivered.length, 1);
 });
 
-test("blocks contact requests when the shared rate limiter rejects them", async () => {
+test("rejects cross-origin requests before parsing or SMTP delivery", async () => {
+  let deliveries = 0;
   const response = await handleContactPost(
     new Request("https://sonbolabs.exceptionalgrp.com/api/contact", {
       method: "POST",
-      headers: { origin: "https://sonbolabs.exceptionalgrp.com", "content-type": "application/json" },
+      headers: { origin: "https://attacker.example", "content-type": "application/json" },
       body: "{}",
     }),
-    { authenticateOrigin: trustedAuth, checkRateLimit: async () => ({ allowed: false, retryAfter: 120 }), deliver: async () => {} },
+    { deliver: async () => { deliveries += 1; } },
   );
 
-  assert.equal(response.status, 429);
-  assert.equal(response.headers.get("retry-after"), "120");
-  assert.deepEqual(await response.json(), { error: "Too many requests. Please try again later." });
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { error: "Invalid form submission." });
+  assert.equal(deliveries, 0);
+});
+
+test("rejects declared and streamed oversized bodies before SMTP delivery", async () => {
+  let deliveries = 0;
+  const headers = { origin: "https://sonbolabs.exceptionalgrp.com", "content-type": "application/json" };
+  const declaredTooLarge = await handleContactPost(new Request("https://sonbolabs.exceptionalgrp.com/api/contact", { method: "POST", headers: { ...headers, "content-length": "16385" }, body: "{}" }), { deliver: async () => { deliveries += 1; } });
+  const streamedTooLarge = await handleContactPost(new Request("https://sonbolabs.exceptionalgrp.com/api/contact", { method: "POST", headers, body: "x".repeat(16 * 1024 + 1) }), { deliver: async () => { deliveries += 1; } });
+  assert.equal(declaredTooLarge.status, 400);
+  assert.equal(streamedTooLarge.status, 400);
+  assert.equal(deliveries, 0);
+});
+
+test("returns a generic error when SMTP delivery fails", async () => {
+  const response = await handleContactPost(
+    new Request("https://sonbolabs.exceptionalgrp.com/api/contact", { method: "POST", headers: { origin: "https://sonbolabs.exceptionalgrp.com", "content-type": "application/json" }, body: JSON.stringify({ name: "Ada Lovelace", email: "ada@example.com", company: "Analytical Engines", website: "", projectType: "digital_product", budget: "2500_5000", timeline: "one_to_two_months", message: "We need a product website.", locale: "en", companyWebsite: "" }) }),
+    { deliver: async () => { throw new Error("test SMTP failure"); } },
+  );
+  assert.equal(response.status, 500);
+  assert.deepEqual(await response.json(), { error: "Unable to send message." });
 });
