@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
-import { LocaleDocument } from "@/components/locale-document";
-import { ServicesPage } from "@/components/services/services-page";
-import { servicesPageContent } from "@/content/services-page";
+import { ServicesPage } from "@/components/sections/services-page";
+import { company } from "@/content/company";
 
-const copy = servicesPageContent.ar;
+const title = "الخدمات | Sonbol Labs — تطوير الويب والأتمتة";
+const description = "اكتشف خدمات Sonbol Labs: مواقع احترافية ابتداءً من €900، وأتمتة العملاء المحتملين ابتداءً من €500، وبنية تقنية لنمو التجارة الإلكترونية ابتداءً من €900.";
 
 export const metadata: Metadata = {
-  title: { absolute: copy.metadata.title },
-  description: copy.metadata.description,
-  alternates: { canonical: "/ar/services", languages: { en: "/services", ar: "/ar/services" } },
-  openGraph: { type: "website", siteName: "Sonbol Labs", locale: copy.metadata.openGraphLocale, title: copy.metadata.title, description: copy.metadata.description, url: "/ar/services" },
+  title: { absolute: title },
+  description,
+  alternates: {
+    canonical: "/ar/services",
+    languages: { en: "/services", ar: "/ar/services" },
+  },
+  openGraph: {
+    type: "website",
+    locale: "ar_AR",
+    url: new URL("/ar/services", company.siteUrl).toString(),
+    title,
+    description,
+  },
 };
 
-export default function ArabicServices() {
-  return <><LocaleDocument locale="ar" /><ServicesPage locale="ar" /></>;
+export default function ArabicServicesRoute() {
+  return <ServicesPage locale="ar" />;
 }
