@@ -2,17 +2,17 @@
 
 ## Contact email delivery
 
-The project form sends through Hostinger SMTP from the server only. Set these production variables in Vercel (and locally in an uncommitted `.env.local`): `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `CONTACT_TO_EMAIL`, and `CONTACT_FROM_EMAIL`.
+The project form sends through the configured SMTP service from the server only. Set the required values in the actual production hosting environment (and locally in an uncommitted `.env.local`): `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `CONTACT_TO_EMAIL`, and `CONTACT_FROM_EMAIL`.
 
-Typical Hostinger settings are `smtp.hostinger.com`, port `465`, and `SMTP_SECURE=true`; use a verified Hostinger mailbox as `CONTACT_FROM_EMAIL`. Before production, verify the sending domain’s SPF, DKIM, and DMARC records in Hostinger, then test a Vercel Preview deployment. SMTP connectivity can differ from local development. The endpoint logs only a safe delivery failure reason and never returns credentials or provider errors to the browser.
+Hostinger SMTP may use `smtp.hostinger.com`, port `465`, and `SMTP_SECURE=true`; verify the actual provider settings and use a verified mailbox as `CONTACT_FROM_EMAIL`. Before production, verify the sending domain’s SPF, DKIM, and DMARC records with the actual mail provider, then perform one authorised production test. SMTP connectivity can differ from local development. The endpoint logs only a safe delivery failure reason and never returns credentials or provider errors to the browser.
 
-There is no distributed rate limiter configured yet. The form has server-side validation, length limits, and a honeypot; add a shared rate-limiting service before high-volume public promotion.
+There is no active Upstash rate limiter. The form uses server-side validation, exact-origin checks in production, body-size restrictions and a honeypot. Do not describe a future rate-limit service as active until it is configured and verified.
 
 Production-ready marketing site for Sonbol Labs, an AI-native Digital Product & Commerce Studio serving Europe and the GCC.
 
 ## Stack
 
-Next.js App Router, TypeScript, React, Tailwind CSS v4, and ESLint. The site is Vercel-compatible and uses Server Components by default.
+Next.js App Router, TypeScript, React, Tailwind CSS v4, and ESLint. The production site is hosted on Hostinger and uses Server Components by default.
 
 ## Run locally
 
@@ -34,21 +34,20 @@ Structured, CMS-ready editorial content lives in `content/`:
 - `services.ts` — service capabilities
 - `projects.ts` — case-study copy
 
-Replace the `TODO` public contact detail and the privacy-policy placeholder before launch. Project images can be added beneath `public/images/`; use `next/image` with descriptive alt text when supplied assets are added.
+The bilingual privacy notice is an approval draft. Do not deploy it until the checklist in `PRIVACY-VERIFICATION.md` is complete and an effective date is approved. Project images can be added beneath `public/images/`; use `next/image` with descriptive alt text when supplied assets are added.
 
 ## Contact form
 
-`app/api/contact/route.ts` validates all required fields server-side and never exposes email credentials. Until a delivery provider adapter is configured, the endpoint returns an acknowledged development-safe response without claiming an email was sent. Connect a provider through server-only environment variables:
+`app/api/contact/route.ts` validates all required fields server-side, checks the production origin, limits body size, uses a honeypot, and never exposes email credentials. Successful submissions use Nodemailer SMTP through server-only environment variables:
 
 - `CONTACT_TO_EMAIL`
 - `CONTACT_FROM_EMAIL`
-- `EMAIL_PROVIDER_API_KEY`
 
-For production, add provider delivery, a rate limiter (edge or platform layer), and CAPTCHA/Turnstile verification in this route. The architecture keeps that integration isolated.
+The endpoint has no application database or CRM persistence for enquiries. Any future provider, rate limiter or CAPTCHA integration must be assessed and documented before activation.
 
 ## Analytics
 
-GTM is loaded only when `NEXT_PUBLIC_GTM_ID` is set. A CMP should be wired in before enabling it in EU markets; no pretend consent banner is included.
+GTM is loaded only when `NEXT_PUBLIC_GTM_ID` is set and the visitor has granted analytics consent. Before enabling it, verify the actual container/property, tags, destinations, retention, data-processing terms and privacy-notice disclosures.
 
 Events are sent through `components/analytics/analytics.tsx`:
 
@@ -68,4 +67,4 @@ Response headers include content type, framing, referrer and permissions protect
 
 ## Deployment
 
-Push to GitHub and import in Vercel. Preview deployments work automatically per Vercel project settings. Set the environment variables in Vercel and configure `NEXT_PUBLIC_SITE_URL` only to the chosen production domain.
+The live audit identifies Hostinger as the responding production platform. Confirm the actual deployment workflow and set environment variables only in that environment. Configure `NEXT_PUBLIC_SITE_URL` only to the chosen production domain; do not rely on legacy Vercel references in older project documentation.
