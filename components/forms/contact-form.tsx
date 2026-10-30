@@ -7,6 +7,7 @@ import { contactOptions } from "@/content/contact-options";
 import type { ContactFieldErrorCode } from "@/lib/contact/handler";
 import { normalizeWebsite } from "@/lib/contact/website";
 import { projectTypeFromSearch } from "@/lib/contact/project-type";
+import Link from "next/link";
 
 type FieldErrors = Partial<Record<string, ContactFieldErrorCode[]>>;
 type ContactErrorResponse = { fields?: FieldErrors };
@@ -81,6 +82,6 @@ export function ContactForm({ locale = "en" }: { locale?: Locale }) {
     <div className="field"><label htmlFor="timeline">{field.timeline}</label><select required id="timeline" name="timeline" defaultValue="" aria-invalid={Boolean(errorFor("timeline"))}><option value="" disabled>{d.select}</option>{options.timelines.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{inputError("timeline")}</div>
     <div className="field field-full"><label htmlFor="message">{field.message}</label><textarea required maxLength={5000} id="message" name="message" aria-invalid={Boolean(errorFor("message"))} />{inputError("message")}</div>
     {status === "error" && <p className="error field-full" role="alert">{d.error}</p>}
-    <div className="field-full"><button disabled={status === "loading"} className="button button-primary" type="submit">{status === "loading" ? d.sending : d.submit}</button></div>
+    <div className="field-full"><button disabled={status === "loading"} className="button button-primary" type="submit">{status === "loading" ? d.sending : d.submit}</button><p className="form-privacy-note">{locale === "ar" ? <>بإرسال النموذج، فإنك تقر بأننا سنعالج بياناتك للرد على استفسارك وفقًا لـ <Link href="/ar/privacy">إشعار الخصوصية</Link>.</> : <>By submitting this form, you acknowledge that we will process your information to respond to your enquiry, as explained in our <Link href="/privacy">Privacy Notice</Link>.</>}</p></div>
   </form>;
 }

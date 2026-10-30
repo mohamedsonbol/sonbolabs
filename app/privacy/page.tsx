@@ -1,3 +1,6 @@
 import type { Metadata } from "next";
-export const metadata:Metadata={title:"Privacy",alternates:{canonical:"/privacy",languages:{en:"/privacy",ar:"/ar/privacy"}}};
-export default function Privacy(){return <section className="section"><div className="container privacy-copy"><p className="eyebrow">Privacy</p><h1 className="display section-title">A clear approach to data.</h1><p>This development version collects information submitted through the project form only to respond to the enquiry. It does not publish analytics tags unless a Google Tag Manager identifier is configured and a consent solution is integrated.</p><h2>Contact forms</h2><p>Form data is processed by the site&apos;s server. The implementation is designed so an email or CRM provider can be connected without exposing provider credentials in the browser.</p><h2>Analytics</h2><p>The site sends only structured, non-personal interaction events when analytics is configured. Names, email addresses and free-text messages are never included in analytics events.</p><h2>Before launch</h2><p>Replace this placeholder policy with the applicable legal privacy notice, including controller identity, lawful basis, retention period and contact details.</p></div></section>}
+import { PrivacyNotice } from "@/components/privacy-notice";
+
+export const metadata: Metadata = { title: "Privacy Notice", description: "Sonbol Labs privacy notice.", alternates: { canonical: "/privacy", languages: { en: "/privacy", ar: "/ar/privacy" } } };
+
+export default function Privacy() { return <PrivacyNotice locale="en"/>; }

@@ -4,6 +4,16 @@ Date: 2026-10-16
 Target: `https://sonbolabs.exceptionalgrp.com`  
 Scope: non-destructive repository and production audit. No valid contact-form request was submitted, so no lead email was intentionally sent.
 
+## Phase 3 privacy-verification update — 2026-10-20
+
+### Current recommendation: NO-GO for privacy publication or a privacy-related deployment
+
+The business identity, privacy email and retention policy are now documented in bilingual approval drafts and the verification report. The local `/privacy` and `/ar/privacy` routes use those drafts and include contact-form links, but production remains unchanged. Do not deploy until controller-address requirements, actual processors, processor contracts/transfers, mailbox/backup deletion, technical-log retention and any optional analytics configuration are verified and legally approved.
+
+Read-only live checks confirmed a Hostinger/LiteSpeed/hPanel response and confirmed the placeholder content is still public. Cloudflare is confirmed in the traffic path, but its enabled products, processing region and log retention remain unverified. The checks did not establish the Hostinger account configuration, SMTP/mailbox provider, backup/log retention or GTM/GA4 property. There is no active Upstash rate limiter; earlier references are historical conditional-code references, not a processor disclosure.
+
+No deployment was performed and no valid contact enquiry was sent. See `PRIVACY-VERIFICATION.md` for the data inventory, provider evidence, required decisions, dashboard actions and operational procedures; see `docs/privacy-notice.en.md` and `docs/privacy-notice.ar.md` for the approval drafts.
+
 ## Phase 2 remediation update — 2026-10-16
 
 ### Final recommendation: NO-GO pending deployment and legal decisions
@@ -13,14 +23,14 @@ The confirmed dependency vulnerabilities are resolved in the repository and all 
 ### Resolved in the repository (not yet deployed)
 
 - **Dependency security — resolved.** `next`, `@next/third-parties`, and `eslint-config-next` were updated from 16.3.7 to 16.4.2. `source-map-js` is now 1.2.2. `npm audit --omit=dev` reports **0 vulnerabilities**.
-- **Contact rate-limiting code — implemented.** `POST /api/contact` now uses a shared Upstash Redis sliding-window limit (five submissions per ten minutes per verified client IP), responds with safe HTTP 429 and `Retry-After`, and fails closed with 503 if its production configuration is absent or unavailable. Existing origin validation, honeypot behavior, validation, and SMTP handling remain intact. Automated tests cover allowed and blocked requests.
+- **Contact rate-limiting history — superseded.** Earlier audit text described a conditional Upstash Redis sliding-window path. There is no active Upstash rate limiter; do not treat that historical description as a live configuration or processor disclosure. The confirmed controls are origin validation, body-size restrictions, schema validation and a honeypot.
 - **Consent-aware analytics — implemented.** Analytics is default-denied, GTM is not injected until analytics consent, Google Consent Mode v2 consent signals are sent, preferences persist for 180 days, and a bilingual accept/reject/change-preferences UI is included. CTA and successful-form events remain consent-gated and free of PII. Actual Calendly links now produce a consent-gated `booking_click` event.
 - **Security headers — implemented in configuration.** HSTS, COOP, `X-Permitted-Cross-Domain-Policies`, `poweredByHeader: false`, and a restrictive external-origin CSP in report-only mode were added. Existing anti-framing, referrer, permissions, and MIME headers remain.
 
 ### Required business, legal, and deployment decisions
 
 1. **Legal/privacy (P0):** Confirm the final legal bases, objective retention periods/criteria, actual processor and transfer locations/safeguards, and registered business address. The supplied notices label each of these as proposed or to be confirmed; they must not be published as final notices until confirmed. Provide an approved English and Arabic final text after those confirmations.
-2. **Rate limiting (P0):** Create/configure the shared Upstash Redis database in Hostinger environment variables: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, and `CONTACT_RATE_LIMIT_TRUSTED_PROXY=cloudflare`. Before setting the latter, restrict the Hostinger origin to Cloudflare IP ranges (or an equivalent verified proxy control) so `CF-Connecting-IP` cannot be spoofed. Add a Cloudflare WAF rule as a second-layer request-rate control.
+2. **Rate limiting (P0):** Decide whether to add a rate limiter. If one is selected, assess its data processing, configure it safely, and update the notice and verification record before activation. No active Upstash configuration is assumed.
 3. **Analytics (P0 if enabled):** Confirm whether a GTM container/GA4 property will be deployed. If yes, name the provider in the final privacy notice, verify the container sends no PII, and test consent, CTA, successful-form, and Calendly events in GTM Preview/GA4 DebugView. If no analytics is to be deployed, leave `NEXT_PUBLIC_GTM_ID` empty.
 4. **Headers (P1):** After deployment, verify HSTS and the `Content-Security-Policy-Report-Only` header on the public hostname, monitor browser/CSP reports while testing English/Arabic pages, forms, and booking, then change to enforced CSP only after all approved origins are confirmed. The report-only policy has no report endpoint; configure one if operational monitoring is required.
 
