@@ -1,6 +1,6 @@
-# Privacy Notice — English approval draft
+# Privacy Notice — English
 
-**Status:** Do not publish. This is the English approval draft used by the local `/privacy` implementation. Publication remains blocked pending the operational/legal checks in `PRIVACY-VERIFICATION.md`.
+**Status:** This notice describes the website's current data practices.
 
 **Effective date:** 22 October 2026
 
