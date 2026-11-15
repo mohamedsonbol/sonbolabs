@@ -1,7 +1,8 @@
 import { privacyNotices } from "@/content/privacy-notice";
 import type { Locale } from "@/content/site";
+import { company } from "@/content/company";
 
-const email = "ezzat@exceptionalgrp.com";
+const email = company.email;
 
 function TextWithEmail({ text }: { text: string }) {
   const parts = text.split(email);
