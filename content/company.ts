@@ -1,1 +1,1 @@
-export const company = { name: "Sonbol Labs", shortName: "SONBOL LABS", descriptor: "AI-Native Digital Product & Commerce Studio", market: "Europe × GCC", siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://sonbolabs.exceptionalgrp.com", email: "ezzat@exceptionalgrp.com" };
+export const company = { name: "Sonbolabs", shortName: "SONBOLABS", descriptor: "AI-Native Digital Product & Commerce Studio", market: "Europe × GCC", siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://sonbolabs.exceptionalgrp.com", email: "ezzat@exceptionalgrp.com" };

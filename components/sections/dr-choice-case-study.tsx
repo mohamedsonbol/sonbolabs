@@ -53,6 +53,6 @@ export function DrChoiceCaseStudy({ locale }: { locale: CaseStudyLocale }) {
 
     {drChoiceScreenshots.length > 0 && <section className="case-study-soft section"><div className="container"><p className="eyebrow">{section.screenshots.label}</p><h2 className="display section-title">{section.screenshots.title}</h2><p className="case-study-screenshot-note">{section.screenshots.note}</p><div className="case-study-screenshots">{drChoiceScreenshots.map((screenshot) => <figure key={screenshot.src}><Image src={screenshot.src} alt={screenshot.alt[locale]} fill sizes="(max-width: 760px) 100vw, 50vw" quality={80}/></figure>)}</div></div></section>}
 
-    <section className="case-study-cta section"><div className="container case-study-cta-inner"><div><p className="eyebrow">Sonbol Labs</p><h2 className="display case-study-heading">{copy.cta.title}</h2></div><div><p>{copy.cta.body}</p><TrackedLink href={contactHref} name={copy.cta.action} location="DR. CHOICE case study CTA" className="button button-primary">{copy.cta.action}</TrackedLink></div></div></section>
+    <section className="case-study-cta section"><div className="container case-study-cta-inner"><div><p className="eyebrow">Sonbolabs</p><h2 className="display case-study-heading">{copy.cta.title}</h2></div><div><p>{copy.cta.body}</p><TrackedLink href={contactHref} name={copy.cta.action} location="DR. CHOICE case study CTA" className="button button-primary">{copy.cta.action}</TrackedLink></div></div></section>
   </>;
 }
