@@ -86,6 +86,28 @@ export function ServicesPage({ locale }: { locale: Locale }) {
         </div>
       </section>
 
+      <section className="section services-drupal" id="drupal" aria-labelledby="services-drupal-title">
+        <div className="container services-drupal-inner">
+          <div>
+            <p className="eyebrow">{copy.drupal.eyebrow}</p>
+            <h2 className="display section-title" id="services-drupal-title">{copy.drupal.title}</h2>
+          </div>
+          <div className="services-drupal-copy">
+            <p className="body-large">{copy.drupal.description}</p>
+            <p className="services-drupal-scope">{copy.drupal.scopeNote}</p>
+            <TrackedLink
+              href={`${generalContactHref}?platform=drupal`}
+              name={copy.drupal.cta}
+              location="services Drupal section"
+              eventName="contact_cta_click"
+              className="button button-dark"
+            >
+              {copy.drupal.cta}
+            </TrackedLink>
+          </div>
+        </div>
+      </section>
+
       <section className="section services-support" aria-labelledby="services-support-title">
         <div className="container">
           <p className="eyebrow">{copy.support.eyebrow}</p>

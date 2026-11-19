@@ -34,6 +34,7 @@ type ServicesPageCopy = {
     idealCustomerLabel: string;
     packages: ServicePackage[];
   };
+  drupal: { eyebrow: string; title: string; description: string; scopeNote: string; cta: string };
   support: {
     eyebrow: string;
     title: string;
@@ -134,6 +135,7 @@ export const servicesPageCopy: Record<Locale, ServicesPageCopy> = {
           price: "From €900",
           delivery: "10–20 business days",
           deliverables: [
+            "WooCommerce and Shopify",
             "Technical store assessment",
             "Review of the customer journey and mobile experience",
             "Analytics and conversion-tracking review",
@@ -149,6 +151,13 @@ export const servicesPageCopy: Record<Locale, ServicesPageCopy> = {
           projectType: "ecommerce",
         },
       ],
+    },
+    drupal: {
+      eyebrow: "Drupal",
+      title: "Drupal on request",
+      description: "We take on Drupal sites and integrations when the work fits. Tell us what you need and we'll scope it with you.",
+      scopeNote: "No fixed package is listed for Drupal. Platform work is quoted separately as a Custom quote.",
+      cta: "Discuss a Drupal project",
     },
     support: {
       eyebrow: "Beyond launch",
@@ -264,6 +273,7 @@ export const servicesPageCopy: Record<Locale, ServicesPageCopy> = {
           price: "ابتداءً من €900",
           delivery: "من 10 إلى 20 يوم عمل",
           deliverables: [
+            "WooCommerce وShopify",
             "تقييم تقني للمتجر",
             "مراجعة رحلة العميل وتجربة الهاتف المحمول",
             "مراجعة التحليلات وتتبع التحويلات",
@@ -279,6 +289,13 @@ export const servicesPageCopy: Record<Locale, ServicesPageCopy> = {
           projectType: "ecommerce",
         },
       ],
+    },
+    drupal: {
+      eyebrow: "Drupal",
+      title: "Drupal عند الطلب",
+      description: "نقبل العمل على مواقع Drupal وتكاملاتها عندما يناسب نطاق العمل. أخبرنا بما تحتاج وسنحدد النطاق معك.",
+      scopeNote: "لا توجد باقة سعر ثابتة لـ Drupal. يُسعّر العمل على المنصات بشكل منفصل عبر عرض سعر مخصص.",
+      cta: "ناقش مشروع Drupal",
     },
     support: {
       eyebrow: "ما بعد الإطلاق",

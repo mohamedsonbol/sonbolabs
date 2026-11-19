@@ -5,6 +5,7 @@ import { drChoiceCaseStudy, drChoiceScreenshots, type CaseStudyLocale } from "@/
 export function DrChoiceCaseStudy({ locale }: { locale: CaseStudyLocale }) {
   const copy = drChoiceCaseStudy[locale];
   const contactHref = locale === "ar" ? "/ar/contact" : "/contact";
+  const woocommerceHref = locale === "ar" ? "/ar/services/woocommerce" : "/services/woocommerce";
   const section = copy.sections;
 
   return <>
@@ -40,7 +41,7 @@ export function DrChoiceCaseStudy({ locale }: { locale: CaseStudyLocale }) {
     </section>
 
     <section className="section">
-      <div className="container"><p className="eyebrow">{section.stack.label}</p><h2 className="display section-title">{section.stack.title}</h2><div className="case-study-stack">{section.stack.items.map(([label, detail]) => <div key={label}><b>{label}</b><p>{detail}</p></div>)}</div></div>
+      <div className="container"><p className="eyebrow">{section.stack.label}</p><h2 className="display section-title">{section.stack.title}</h2><div className="case-study-stack">{section.stack.items.map(([label, detail]) => <div key={label}><b>{label}</b><p>{detail}</p></div>)}</div><p className="case-study-platform">{section.stack.platform.label} <TrackedLink href={woocommerceHref} name={section.stack.platform.linkLabel} location="DR. CHOICE case study platform" className="case-study-platform-link">{section.stack.platform.linkLabel}</TrackedLink></p></div>
     </section>
 
     <section className="case-study-dark section">

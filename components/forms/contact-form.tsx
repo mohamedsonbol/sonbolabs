@@ -7,6 +7,7 @@ import { contactOptions } from "@/content/contact-options";
 import type { ContactFieldErrorCode } from "@/lib/contact/handler";
 import { normalizeWebsite } from "@/lib/contact/website";
 import { projectTypeFromSearch } from "@/lib/contact/project-type";
+import { platformFromSearch } from "@/lib/contact/platform";
 import Link from "next/link";
 
 type FieldErrors = Partial<Record<string, ContactFieldErrorCode[]>>;
@@ -21,6 +22,7 @@ export function ContactForm({ locale = "en" }: { locale?: Locale }) {
   const options = contactOptions[locale];
   const searchParams = useSearchParams();
   const initialProjectType = projectTypeFromSearch(searchParams.get("projectType"));
+  const initialPlatform = platformFromSearch(searchParams.get("platform"));
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [started, setStarted] = useState(false);
@@ -52,7 +54,7 @@ export function ContactForm({ locale = "en" }: { locale?: Locale }) {
         setFieldErrors(body.fields ?? {});
         throw new Error("Contact submission failed");
       }
-      trackEvent("lead_form_submit", { project_type: String(values.projectType), budget_range: String(values.budget), timeline: String(values.timeline), locale });
+      trackEvent("lead_form_submit", { project_type: String(values.projectType), platform: String(values.platform), budget_range: String(values.budget), timeline: String(values.timeline), locale });
       form.reset();
       setStatus("success");
     } catch {
@@ -78,6 +80,7 @@ export function ContactForm({ locale = "en" }: { locale?: Locale }) {
     <div className="field"><label htmlFor="company">{field.company}</label><input required maxLength={150} id="company" name="company" autoComplete="organization" aria-invalid={Boolean(errorFor("company"))} />{inputError("company")}</div>
     <div className="field"><label htmlFor="website">{field.website} <span style={{ fontWeight: 400 }}>({field.optional})</span></label><input type="text" inputMode="url" maxLength={2048} id="website" name="website" placeholder="example.com" aria-invalid={Boolean(errorFor("website"))} />{inputError("website")}</div>
     <div className="field"><label htmlFor="projectType">{field.projectType}</label><select required id="projectType" name="projectType" defaultValue={initialProjectType ?? ""} aria-invalid={Boolean(errorFor("projectType"))}><option value="" disabled>{d.select}</option>{options.types.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{inputError("projectType")}</div>
+    <div className="field"><label htmlFor="platform">{field.platform}</label><select required id="platform" name="platform" defaultValue={initialPlatform ?? ""} aria-invalid={Boolean(errorFor("platform"))}><option value="" disabled>{d.select}</option>{options.platforms.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{inputError("platform")}</div>
     <div className="field"><label htmlFor="budget">{field.budget}</label><select required id="budget" name="budget" defaultValue="" aria-invalid={Boolean(errorFor("budget"))}><option value="" disabled>{d.select}</option>{options.budgets.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{inputError("budget")}</div>
     <div className="field"><label htmlFor="timeline">{field.timeline}</label><select required id="timeline" name="timeline" defaultValue="" aria-invalid={Boolean(errorFor("timeline"))}><option value="" disabled>{d.select}</option>{options.timelines.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{inputError("timeline")}</div>
     <div className="field field-full"><label htmlFor="message">{field.message}</label><textarea required maxLength={5000} id="message" name="message" aria-invalid={Boolean(errorFor("message"))} />{inputError("message")}</div>

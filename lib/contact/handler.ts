@@ -7,7 +7,7 @@ type ValidationIssue = z.core.$ZodIssue;
 export type ContactFieldErrorCode = "required" | "too_long" | "invalid_option" | "invalid_email" | "invalid_website";
 type FieldErrors = Record<string, ContactFieldErrorCode[]>;
 
-const publicFields = new Set(["name", "email", "company", "website", "projectType", "budget", "timeline", "message", "locale"]);
+const publicFields = new Set(["name", "email", "company", "website", "projectType", "budget", "timeline", "platform", "message", "locale"]);
 
 function validationCode(issue: ValidationIssue, field: string): ContactFieldErrorCode {
   if (issue.code === "too_big") return "too_long";
@@ -71,6 +71,7 @@ export async function processContactSubmission(raw: unknown, deliver: Delivery):
     projectType: data.projectType,
     budget: data.budget,
     timeline: data.timeline,
+    platform: data.platform,
     message: data.message,
     locale: data.locale,
   });
