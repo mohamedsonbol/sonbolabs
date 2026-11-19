@@ -10,7 +10,7 @@ const securityHeaders = [
   { key: "Content-Security-Policy-Report-Only", value: "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com; img-src 'self' data: https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src 'self' https://calendly.com; upgrade-insecure-requests" },
 ];
 const nextConfig: NextConfig = {
-  experimental: { useTypeScriptCli: false },
+  experimental: { agentUpgrade: "security", useTypeScriptCli: false },
   poweredByHeader: false,
   async headers() { return [{ source: "/(.*)", headers: securityHeaders }]; },
 };
