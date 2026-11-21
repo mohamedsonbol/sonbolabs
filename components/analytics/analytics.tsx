@@ -19,17 +19,22 @@ export function trackEvent(event: string, data: Record<string, string | undefine
   window.dataLayer.push({ event, ...data });
 }
 
+export function injectGtmScript(enabled: boolean, id: string | undefined): (() => void) | undefined {
+  if (!enabled || !id || document.getElementById("sonbol-gtm")) return undefined;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+  const script = document.createElement("script");
+  script.id = "sonbol-gtm";
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(id)}`;
+  document.head.appendChild(script);
+  return () => {
+    if (script.parentNode) script.parentNode.removeChild(script);
+  };
+}
+
 export function GTM({ enabled }: { enabled: boolean }) {
   const id = process.env.NEXT_PUBLIC_GTM_ID;
-  useEffect(() => {
-    if (!enabled || !id || document.getElementById("sonbol-gtm")) return;
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
-    const script = document.createElement("script");
-    script.id = "sonbol-gtm";
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(id)}`;
-    document.head.appendChild(script);
-  }, [enabled, id]);
+  useEffect(() => injectGtmScript(enabled, id), [enabled, id]);
   return null;
 }

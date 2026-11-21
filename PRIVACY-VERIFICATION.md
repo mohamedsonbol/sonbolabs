@@ -3,6 +3,17 @@
 **Date:** 22 October 2026  
 **Scope:** repository, local configuration presence (without reading secret values), prior read-only production HTTP evidence, publicly available provider documentation, and owner-confirmed production email verification. No provider dashboard, mailbox, backup, DNS, account, application code, or deployment configuration was changed. This is an implementation and evidence review, not legal advice.
 
+## Production GTM evidence correction and disablement — 2026-11-20
+
+- Earlier notes that `NEXT_PUBLIC_GTM_ID` is empty locally and that no GTM marker appeared in fetched production HTML remain accurate for those specific checks. They did **not** establish that production was unconfigured: `NEXT_PUBLIC_*` values are inlined at build time, and script injection is consent-gated, so a cookie-less HTTP fetch would not show the script even with an ID present.
+- The deployed production bundle was subsequently found to contain an inlined container ID in the GTM component. Before this note the ID was not present in application source or tracked Git history; it is recorded here only as historical evidence, and no owner/configuration record was found in authorized documentation.
+- **Approved decision recorded:** GTM is disabled in production builds. `next.config.ts` sets `env: { NEXT_PUBLIC_GTM_ID: "" }`; a verification build with a deliberately non-empty dummy value still produced no ID. The GTM component and all site-created event definitions were preserved for possible future reactivation.
+- **Consent withdrawal:** the injection logic now returns a cleanup function that removes the application-created script when the effect tears down (including withdrawal from granted to denied). Consent signals continue to update (`analytics_storage: denied`), and `trackEvent` re-checks the consent cookie on each call. Script removal cannot reverse already-sent requests or guarantee complete unloading of previously executed third-party code.
+- **Banner:** a localized Privacy Notice link (`/privacy` and `/ar/privacy`) was added to both consent banners.
+- **Verification:** lint, typecheck, 26/26 tests and production build passed; generated bundles contain no GTM/GA4 ID pattern and the compiled GTM effect is a no-op.
+- **Unresolved:** container ownership and published tag inventory, GA4 property and retention, Google DPA/transfer documentation, and whether previously executed tags in the old production build processed data. No Google account was accessed.
+- **Status:** local implementation only; production deployment remains pending and requires separate approval. This section does not change any legal claim in the notices.
+
 ## Final compliance evidence review — owner/legal approval report
 
 ### Evidence classes

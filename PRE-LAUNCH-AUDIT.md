@@ -4,6 +4,32 @@ Date: 2026-10-16
 Target: `https://sonbolabs.exceptionalgrp.com`  
 Scope: non-destructive repository and production audit. No valid contact-form request was submitted, so no lead email was intentionally sent.
 
+## Phase 4 — Public contact channel hygiene — 2026-11-20
+
+Approved public contact policy: the website contact form and LinkedIn only. The following public-facing personal or direct channels were removed locally (not deployed):
+
+- **Personal WhatsApp:** `components/contact/whatsapp-cta.tsx` deleted; usages removed from `app/contact/page.tsx` and `app/ar/contact/page.tsx`; EN/AR dictionary strings, CSS and dead wrappers removed.
+- **Personal Calendly/booking link:** booking CTA and `NEXT_PUBLIC_BOOKING_URL` removed from `components/localized-site.tsx`, `components/sections/home-sections.tsx` and `.env.example`; the consent-gated `booking_click` tracker removed from `components/analytics/analytics-consent.tsx`; the Calendly origin removed from the report-only CSP in `next.config.ts`.
+- **Personal Instagram and attribution:** Instagram link/icon and the personal "Built by" credit removed from `components/layout/footer.tsx`. The existing LinkedIn link was kept unchanged with `target="_blank" rel="noopener noreferrer"`.
+
+Preserved: contact form fields, validation, honeypot, SMTP delivery, success/error states, all server-side SMTP variables, privacy/legal notices, pricing, positioning and branding.
+
+Repository hygiene: `.webui_secret_key` was added to `.gitignore`. Git metadata checks (`git ls-files --error-unmatch`, `git log --all --full-history -- .webui_secret_key`, `git rev-list --all --objects -- .webui_secret_key`) confirm it is not in HEAD, the index, or any local ref; no history or index change was made. Its contents were not read.
+
+The snapshot below is historical. Its references to WhatsApp, Calendly, booking links and booking events describe the pre-Phase-4 site and no longer describe the current code. Obsolete booking-click wording in the privacy notices is listed for the separate privacy/legal review; those notices were not edited.
+
+## Phase 5 — Production GTM disablement and consent remediation — 2026-11-20
+
+Approved decision: Google Tag Manager is disabled in production builds while the consent/analytics architecture is preserved for possible future reactivation.
+
+- **Evidence:** the previously deployed production bundle contained an inlined container ID (`GTM-N63C7TRK`) in the GTM component. Before this note the ID was absent from application source and from tracked Git history; it is recorded here only as historical evidence, and no owner/configuration record exists in authorized project documentation. The old "no GTM marker in fetched HTML" finding was accurate for server HTML only and did not rule out a build-time ID.
+- **Build configuration:** `next.config.ts` now sets `env: { NEXT_PUBLIC_GTM_ID: "" }`, which is inlined at build time and overrides environment/.env values. A verification build with a dummy non-empty `NEXT_PUBLIC_GTM_ID` still produced no container ID. No replacement ID was hardcoded; the GTM component and all event definitions were retained.
+- **Consent withdrawal:** GTM injection is isolated in `injectGtmScript(enabled, id)` (`components/analytics/analytics.tsx`), which returns a cleanup function that removes the script element it created. React effect cleanup runs when consent changes from granted to denied, so the injected script is removed. Duplicate injection is still blocked by the `sonbol-gtm` element check. Consent signals still update with `analytics_storage: denied` and `trackEvent` still re-checks the cookie on every call. Removing the script cannot reverse requests already sent or guarantee that previously executed third-party code is fully unloaded.
+- **Privacy link:** `components/analytics/consent-copy.ts` holds bilingual banner copy; the banner now shows a localized Privacy Notice link to `/privacy` and `/ar/privacy` with RTL preserved.
+- **CSP note:** the report-only CSP in `next.config.ts` still allows `www.googletagmanager.com` in `script-src`/`connect-src` and `www.google-analytics.com`, `region1.google-analytics.com` in `connect-src`/`img-src`. No other source dependency on those origins exists in the repository; they are candidates for removal only after a future approved CSP change and validation.
+- **Tests:** `npm run lint`, `npm run typecheck`, `npm test` (26 passed / 0 failed) and `npm run build` (Next.js 16.4.6) passed. Generated bundles contain no `GTM-N63C7TRK`, no other GTM/GA4 ID pattern, and the compiled GTM effect is a no-op.
+- **Status:** local implementation only. Production deployment remains pending and requires separate approval.
+
 ## Phase 3 privacy-verification update — 2026-10-20
 
 ### Current recommendation: NO-GO for privacy publication or a privacy-related deployment
@@ -55,6 +81,8 @@ The confirmed dependency vulnerabilities are resolved in the repository and all 
 No production route, DNS, Hostinger setting, Cloudflare setting, SMTP configuration, or GTM container was changed during Phase 2. A valid contact form was not submitted.
 
 ## Original audit snapshot
+
+Historical record only (2026-10-16). Superseded where contact channels are concerned by the Phase 4 note above.
 
 ## Category status
 

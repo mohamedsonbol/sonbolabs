@@ -45,6 +45,16 @@ After an authorized deployment, use only invalid requests first:
 
 Before deployment, record the current Hostinger build ID and Git commit. If the build, routes, headers, or SMTP behavior fail, restore the previous Hostinger build or redeploy the prior reviewed commit through the normal GitHub-to-Hostinger workflow. Keep Cloudflare proxying and Full (strict) enabled during rollback. Reverting to `d1ba90f8` with the removed HMAC/Upstash variables still absent deliberately restores a 503 contact endpoint; it is a site rollback, not a functional-contact rollback. Do not restore removed Worker/HMAC or Upstash variables unless a separately reviewed architecture restores their corresponding code.
 
+## Production GTM state — 2026-11-20
+
+- The previously deployed build contained an inlined GTM container ID. `next.config.ts` now forces `NEXT_PUBLIC_GTM_ID` to an empty string at build time; a build with a deliberately non-empty dummy value was verified to contain no ID. No replacement ID was hardcoded.
+- The Hostinger environment variable should also be left unset or empty as defence in depth, but the build-time configuration is authoritative. Reactivation requires an explicit approved change to the build configuration, a container inventory and an updated privacy notice — not merely setting the environment variable.
+- Consent withdrawal removes the application-created GTM script; consent signals continue to be sent with `analytics_storage: denied`, and application events stop while consent is denied. Script removal cannot undo requests already sent or guarantee complete unloading of third-party code.
+- The consent banner now includes a localized Privacy Notice link on EN and AR routes.
+- Post-deployment verification must include: scanning built bundles for any `GTM-`/`G-` ID pattern; confirming banner links and RTL on EN/AR; confirming no GTM script before consent and script removal after withdrawal in a browser; re-running the safe invalid/honeypot contact checks; and confirming header configuration.
+
+**Status:** this is implemented locally only. No deployment has been performed.
+
 ## Current decision
 
 **Repository readiness:** pending review of this branch and a clean working tree.
